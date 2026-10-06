@@ -27,9 +27,9 @@ export default defineConfig({ plugins: [react(), tailwindcss(), logmonUi()] });
 ```
 
 ```html
-<!-- index.html: the Go server fills these in (html/template) -->
-<meta name="logmon:theme-override" content="{{.ThemeOverride}}" />
-<meta name="logmon:cookie-domain" content="{{.CookieDomain}}" />
+<!-- index.html: the Go server replaces the tokens when it serves the page -->
+<meta name="logmon:theme-override" content="__LOGMON_THEME_OVERRIDE__" />
+<meta name="logmon:cookie-domain" content="__LOGMON_COOKIE_DOMAIN__" />
 ```
 
 ```tsx

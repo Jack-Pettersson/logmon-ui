@@ -57,7 +57,7 @@ describe('cookies', () => {
     expect(validCookieDomain('dev-logmon.io', 'acme-prod.dev-logmon.io')).toBe('dev-logmon.io');
     expect(validCookieDomain('dev-logmon.io', 'dev-logmon.io')).toBe('dev-logmon.io');
     expect(validCookieDomain('dev-logmon.io', 'evil-dev-logmon.io')).toBeNull();
-    expect(validCookieDomain('{{.CookieDomain}}', 'localhost')).toBeNull();
+    expect(validCookieDomain('__LOGMON_COOKIE_DOMAIN__', 'localhost')).toBeNull();
     expect(validCookieDomain('', 'localhost')).toBeNull();
   });
 });
