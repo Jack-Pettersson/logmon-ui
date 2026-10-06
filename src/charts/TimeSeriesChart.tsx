@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from 'react';
 import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChartMessage, ChartTooltip, axisTick, gridProps, seriesColor, spanOf, timeTickFormatter } from './common.tsx';
+import { ChartMessage, ChartTooltip, axisTick, gridProps, seriesColor, spanOf, timeTickFormatter, yAxisWidth } from './common.tsx';
 
 export interface Series {
   key: string;
@@ -31,6 +31,10 @@ export function TimeSeriesChart({
   if (data.length === 0) return <ChartMessage height={height}>{empty}</ChartMessage>;
   const fmtTime = timeTickFormatter(spanOf(data));
   const colors = series.map((s, i) => s.color ?? seriesColor(i));
+  const peak = Math.max(
+    typeof yDomain?.[1] === 'number' ? yDomain[1] : 0,
+    ...data.flatMap((row) => series.map((s) => Math.abs(row[s.key] ?? 0))),
+  );
   const common = { data, margin: { top: 8, right: 20, bottom: 0, left: 0 } };
   const axes = (
     <>
@@ -50,7 +54,7 @@ export function TimeSeriesChart({
         tick={axisTick}
         tickLine={false}
         axisLine={false}
-        width={56}
+        width={yAxisWidth(peak, formatValue)}
         tickFormatter={formatValue}
         domain={yDomain ?? ['auto', 'auto']}
       />
