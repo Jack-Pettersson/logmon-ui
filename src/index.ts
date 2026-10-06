@@ -8,7 +8,7 @@ export type { Mode, Scheme, Severity, Status, Theme, ThemeVariant } from './them
 export { themes, getTheme, isThemeId, DEFAULT_THEME_ID } from './theme/registry.ts';
 export { ThemeProvider, useTheme, type ThemeProviderProps } from './theme/ThemeProvider.tsx';
 export { ThemePicker } from './theme/ThemePicker.tsx';
-export { COOKIE_NAME, META_COOKIE_DOMAIN, META_OVERRIDE, type Preference, type Appearance } from './theme/preference.ts';
+export { COOKIE_NAME, META_COOKIE_DOMAIN, META_OVERRIDE, META_SESSION_KEY, type Preference, type Appearance } from './theme/preference.ts';
 
 export { Button, buttonVariants, type ButtonProps } from './components/button.tsx';
 export { Spinner, Skeleton, LoadingBlock } from './components/spinner.tsx';

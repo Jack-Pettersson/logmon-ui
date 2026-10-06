@@ -12,14 +12,32 @@ export function LogmonMark({ className }: { className?: string }) {
   );
 }
 
-export function Brand({ product = 'logmon', context, className }: { product?: ReactNode; context?: ReactNode; className?: string }) {
-  return (
-    <div className={cn('flex min-w-0 items-center gap-2.5', className)}>
+export function Brand({
+  product = 'logmon',
+  context,
+  href,
+  className,
+}: {
+  product?: ReactNode;
+  context?: ReactNode;
+  href?: string;
+  className?: string;
+}) {
+  const content = (
+    <>
       <LogmonMark />
       <div className="flex min-w-0 flex-col leading-tight">
         <span className="truncate text-[15px] font-semibold tracking-tight text-fg">{product}</span>
         {context && <span className="truncate text-xs text-fg-muted">{context}</span>}
       </div>
-    </div>
+    </>
+  );
+  const classes = cn('flex min-w-0 items-center gap-2.5', className);
+  return href ? (
+    <a href={href} className={cn(classes, 'rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent')}>
+      {content}
+    </a>
+  ) : (
+    <div className={classes}>{content}</div>
   );
 }

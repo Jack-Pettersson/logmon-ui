@@ -33,7 +33,7 @@ export default defineConfig({ plugins: [react(), tailwindcss(), logmonUi()] });
 ```
 
 ```tsx
-<ThemeProvider override={clusterTheme /* optional, live value from the server */}>
+<ThemeProvider override={instanceTheme /* optional, live value from the server */} applyPreference={signedIn}>
   <TooltipProvider>
     <ConfirmProvider>
       <App />
@@ -47,7 +47,7 @@ Charts live in a separate entry so pages without charts don't pull Recharts: `im
 
 ## Themes
 
-A user's choice is `{theme, mode}` with mode `light | dark | system`, stored in the `logmon_theme` cookie on the shared parent domain, so hosting, admin and every cluster read the same value. A cluster override (`logmon:theme-override`) replaces the theme for everyone on that cluster but never the user's mode. The `logmonUi()` Vite plugin injects a blocking script that applies `data-theme` and `data-scheme` on `<html>` before first paint; `ThemeProvider` keeps them in sync afterwards.
+A user's choice is `{theme, mode}` with mode `light | dark | system`, stored in the `logmon_theme` cookie on the shared parent domain, so hosting, admin and every cluster read the same value. An instance override (`logmon:theme-override`) replaces the theme for everyone on that instance but never the user's mode. Apps with a sign-in page add `<meta name="logmon:theme-session" content="<localStorage session key>">` and pass `applyPreference={signedIn}`: until there is a session, the default theme (Logmon, following the OS) applies and the preference is ignored. The `logmonUi()` Vite plugin injects a blocking script that applies `data-theme` and `data-scheme` on `<html>` before first paint; `ThemeProvider` keeps them in sync afterwards.
 
 A theme is colour only: about 35 roles per variant (`src/theme/types.ts`). Geometry, type and spacing belong to the base design in `src/styles/index.css` and are the same for every theme. Components only ever use role utilities (`bg-raised`, `text-fg-muted`, `border-line`, `text-danger`, `bg-sev-error`, `--color-data-3` …); Tailwind's default palette is switched off so nothing else exists.
 

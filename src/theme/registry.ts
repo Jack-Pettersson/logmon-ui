@@ -1,9 +1,9 @@
 import type { Scheme, Theme, ThemeVariant } from './types.ts';
 import { logmon } from './themes/logmon.ts';
 import { dev, prod, staging } from './themes/environments.ts';
-import { claude, dracula, solarized } from './themes/classics.ts';
+import { terracotta, dracula, solarized } from './themes/classics.ts';
 
-export const themes: readonly Theme[] = [logmon, prod, staging, dev, solarized, dracula, claude];
+export const themes: readonly Theme[] = [logmon, prod, staging, dev, solarized, dracula, terracotta];
 
 export const DEFAULT_THEME_ID = 'logmon';
 
