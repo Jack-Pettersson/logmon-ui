@@ -1,6 +1,7 @@
 import { createContext, use, useCallback, useLayoutEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import {
   COOKIE_NAME,
+  DEFAULT_PREFERENCE,
   META_COOKIE_DOMAIN,
   META_OVERRIDE,
   cookieAttributes,
@@ -42,19 +43,24 @@ function readPreference(): Preference {
 }
 
 export interface ThemeProviderProps {
-  /** Cluster-wide theme. `undefined` reads the server-rendered meta tag. */
+  /** Instance-wide theme override. `undefined` reads the server-rendered meta tag. */
   override?: string | null;
+  /** False before sign-in: the default theme applies and the preference is ignored. */
+  applyPreference?: boolean;
   children: ReactNode;
 }
 
-export function ThemeProvider({ override: overrideProp, children }: ThemeProviderProps) {
+export function ThemeProvider({ override: overrideProp, applyPreference = true, children }: ThemeProviderProps) {
   const [storedPreference, setStoredPreference] = useState(readPreference);
   const [metaOverride] = useState(() => meta(META_OVERRIDE));
   const override = overrideProp === undefined ? metaOverride : overrideProp;
   const systemDark = useSyncExternalStore(subscribeSystemDark, systemDarkSnapshot);
   const appearance = useMemo(
-    () => resolveAppearance(storedPreference, isThemeId(override) ? override : null, systemDark),
-    [storedPreference, override, systemDark],
+    () =>
+      applyPreference
+        ? resolveAppearance(storedPreference, isThemeId(override) ? override : null, systemDark)
+        : resolveAppearance(DEFAULT_PREFERENCE, null, systemDark),
+    [applyPreference, storedPreference, override, systemDark],
   );
 
   useLayoutEffect(() => {

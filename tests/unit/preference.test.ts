@@ -27,7 +27,7 @@ describe('resolveAppearance', () => {
   });
 
   it('lets an explicit mode win over the system', () => {
-    expect(resolveAppearance({ theme: 'claude', mode: 'light' }, null, true).scheme).toBe('light');
+    expect(resolveAppearance({ theme: 'terracotta', mode: 'light' }, null, true).scheme).toBe('light');
   });
 
   it('lets the cluster override replace the theme but keeps the user mode', () => {

@@ -4,6 +4,8 @@ import type { Mode, Scheme } from './types.ts';
 export const COOKIE_NAME = 'logmon_theme';
 export const META_OVERRIDE = 'logmon:theme-override';
 export const META_COOKIE_DOMAIN = 'logmon:cookie-domain';
+// Names the localStorage key holding the app's session; without one, the default theme applies.
+export const META_SESSION_KEY = 'logmon:theme-session';
 
 export interface Preference {
   theme: string;

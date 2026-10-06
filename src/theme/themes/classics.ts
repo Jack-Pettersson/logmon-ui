@@ -18,16 +18,16 @@ export const dracula: Theme = {
     },
   },
   light: {
-    surface: { base: '#fffbeb', sidebar: '#f5efd9', raised: '#fffdf4', overlay: '#fffdf4', sunken: '#f7f1dc' },
-    text: { primary: '#1f1f1f', secondary: '#3d3a2e', muted: '#635d44', inverted: '#fffbeb' },
-    border: { subtle: '#ece4c8', strong: '#cfcfde' },
-    accent: { base: '#644ac9', hover: '#523aa8', fg: '#ffffff' },
-    status: { ok: '#14710a', info: '#036a96', warn: '#7a6513', danger: '#c03526' },
-    severity: { trace: '#635d44', debug: '#3d3a2e', info: '#036a96', warn: '#a34d14', error: '#c03526', fatal: '#a3144d' },
+    surface: { base: '#f5f1fd', sidebar: '#e9e1f9', raised: '#fcfaff', overlay: '#ffffff', sunken: '#eee8fb' },
+    text: { primary: '#282a36', secondary: '#44475a', muted: '#5c5878', inverted: '#f8f8f2' },
+    border: { subtle: '#e2daf5', strong: '#c9bdea' },
+    accent: { base: '#7047d6', hover: '#5d38bd', fg: '#ffffff' },
+    status: { ok: '#1b7535', info: '#0a6a8c', warn: '#875500', danger: '#c0362c' },
+    severity: { trace: '#5c5878', debug: '#44475a', info: '#0a6a8c', warn: '#9c4f00', error: '#c0362c', fatal: '#b0217a' },
     data: {
-      categorical: ['#644ac9', '#036a96', '#14710a', '#a34d14', '#a3144d', '#846e15', '#cb3a2a', '#6c664b'],
-      sequential: ['#e9e3fb', '#644ac9'],
-      diverging: ['#cb3a2a', '#cfcfde', '#14710a'],
+      categorical: ['#7047d6', '#0b7ea3', '#1f8a3c', '#c25e00', '#c42d86', '#8a7a00', '#cf3a2b', '#6b6790'],
+      sequential: ['#ece6fb', '#7047d6'],
+      diverging: ['#cf3a2b', '#c9bdea', '#1f8a3c'],
     },
   },
 };
@@ -52,22 +52,22 @@ export const solarized: Theme = {
   light: {
     surface: { base: '#fdf6e3', sidebar: '#eee8d5', raised: '#fffbf0', overlay: '#fffbf0', sunken: '#f5efdc' },
     text: { primary: '#002b36', secondary: '#3f535a', muted: '#536a71', inverted: '#fdf6e3' },
-    border: { subtle: '#e6dfc8', strong: '#cfc7ad' },
-    accent: { base: '#1f6fa8', hover: '#195b8a', fg: '#ffffff' },
+    border: { subtle: '#e6dfc8', strong: '#d9b99b' },
+    accent: { base: '#b3420f', hover: '#963709', fg: '#ffffff' },
     status: { ok: '#5c6b00', info: '#1f6fa8', warn: '#7d5f00', danger: '#b8291f' },
     severity: { trace: '#536a71', debug: '#3f535a', info: '#1f6fa8', warn: '#9a4a12', error: '#b8291f', fatal: '#a32867' },
     data: {
-      categorical: ['#268bd2', '#2aa198', '#859900', '#b58900', '#cb4b16', '#d33682', '#6c71c4', '#dc322f'],
-      sequential: ['#eee8d5', '#268bd2'],
-      diverging: ['#dc322f', '#cfc7ad', '#859900'],
+      categorical: ['#cb4b16', '#268bd2', '#2aa198', '#859900', '#b58900', '#d33682', '#6c71c4', '#dc322f'],
+      sequential: ['#f6dfcc', '#cb4b16'],
+      diverging: ['#dc322f', '#d9b99b', '#859900'],
     },
   },
 };
 
-export const claude: Theme = {
-  id: 'claude',
-  name: 'Claude',
-  description: 'Warm greys with a clay accent.',
+export const terracotta: Theme = {
+  id: 'terracotta',
+  name: 'Terracotta',
+  description: 'Warm greys with a terracotta accent.',
   dark: {
     surface: { base: '#1f1e1d', sidebar: '#1a1918', raised: '#262624', overlay: '#2b2a28', sunken: '#171716' },
     text: { primary: '#f0efec', secondary: '#c3c2b7', muted: '#9c9a91', inverted: '#141413' },

@@ -46,8 +46,9 @@ export function ThemePicker() {
   return (
     <div className="flex flex-col gap-4">
       {override && (
-        <Callout tone="info" title={`This cluster uses the ${getTheme(override).name} theme`}>
-          An editor set it for everyone here. Your own choice below still applies on other logmon pages, and light/dark still follows you.
+        <Callout tone="info" title={`This instance overrides your theme with ${getTheme(override).name}`}>
+          An editor set it for everyone on this instance. Your own choice below still applies on other logmon pages, and light/dark still
+          follows you.
         </Callout>
       )}
       <div className="flex items-center justify-between gap-3">

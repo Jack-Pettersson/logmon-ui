@@ -36,7 +36,7 @@ test('mobile shell', async ({ page }) => {
 
 test('system mode follows prefers-color-scheme without a flash of the other scheme', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
-  await open(page, '/', 'claude', 'system');
+  await open(page, '/', 'terracotta', 'system');
   await expect(page.locator('html')).toHaveAttribute('data-scheme', 'dark');
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(page.locator('html')).toHaveAttribute('data-scheme', 'light');

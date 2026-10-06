@@ -1,5 +1,5 @@
 import { availableSchemes, DEFAULT_THEME_ID } from './registry.ts';
-import { COOKIE_NAME, META_OVERRIDE } from './preference.ts';
+import { COOKIE_NAME, META_OVERRIDE, META_SESSION_KEY } from './preference.ts';
 import type { Theme } from './types.ts';
 
 // Classic blocking <head> script: sets data-theme/data-scheme before first
@@ -17,12 +17,18 @@ export function initScript(themes: readonly Theme[]): string {
       var p = parts[i].replace(/^\\s+/, '');
       if (p.indexOf(${JSON.stringify(COOKIE_NAME + '=')}) === 0) raw = decodeURIComponent(p.slice(${COOKIE_NAME.length + 1}));
     }
+    var sk = d.querySelector('meta[name=${JSON.stringify(META_SESSION_KEY)}]');
+    var signedIn = true;
+    if (sk) {
+      try { signedIn = !!window.localStorage.getItem(sk.getAttribute('content')); } catch (e) { signedIn = false; }
+    }
+    if (!signedIn) raw = '';
     var pref = raw.split('.');
     var t = has(pref[0]) ? pref[0] : ${JSON.stringify(DEFAULT_THEME_ID)};
     var m = pref[1] === 'light' || pref[1] === 'dark' ? pref[1] : 'system';
     var meta = d.querySelector('meta[name=${JSON.stringify(META_OVERRIDE)}]');
     var o = meta ? meta.getAttribute('content') : null;
-    if (o && has(o)) t = o;
+    if (signedIn && o && has(o)) t = o;
     var s = m === 'system' ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : m;
     if (S[t].indexOf(s) < 0) s = S[t][0];
     d.documentElement.setAttribute('data-theme', t);
