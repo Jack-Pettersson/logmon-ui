@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChartMessage, ChartTooltip, Legend, axisTick, gridProps, seriesColor, spanOf, timeTickFormatter } from './common.tsx';
+import { ChartMessage, ChartTooltip, Legend, axisTick, gridProps, seriesColor, spanOf, timeTickFormatter, yAxisWidth } from './common.tsx';
 import type { Series } from './TimeSeriesChart.tsx';
 
 export interface StackedBarChartProps {
@@ -23,13 +23,14 @@ export function StackedBarChart({
   if (data.length === 0) return <ChartMessage height={height}>{empty}</ChartMessage>;
   const fmtTime = timeTickFormatter(spanOf(data), stepMs);
   const colors = series.map((s, i) => s.color ?? seriesColor(i));
+  const peak = Math.max(...data.map((row) => series.reduce((sum, s) => sum + (row[s.key] ?? 0), 0)));
   return (
     <div className="flex flex-col gap-2">
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={data} margin={{ top: 4, right: 20, bottom: 0, left: 0 }} barCategoryGap={1}>
           <CartesianGrid {...gridProps} />
           <XAxis dataKey="time" tickFormatter={fmtTime} tick={axisTick} tickLine={false} axisLine={false} minTickGap={48} />
-          <YAxis tick={axisTick} tickLine={false} axisLine={false} width={44} allowDecimals={false} />
+          <YAxis tick={axisTick} tickLine={false} axisLine={false} width={yAxisWidth(peak)} allowDecimals={false} />
           <Tooltip
             content={<ChartTooltip hideZero formatValue={(v) => v.toLocaleString()} />}
             cursor={{ fill: 'var(--color-hover)' }}

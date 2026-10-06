@@ -79,3 +79,8 @@ export function Legend({ items }: { items: { key: string; label: ReactNode; colo
     </div>
   );
 }
+
+// Recharts' width="auto" measures before the mono font loads and clips labels.
+export function yAxisWidth(peak: number, format: (v: number) => string = (v) => v.toLocaleString()): number {
+  return Math.max(32, format(peak).length * 7 + 12);
+}
