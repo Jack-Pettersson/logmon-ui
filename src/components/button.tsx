@@ -35,17 +35,18 @@ export interface ButtonProps extends ComponentProps<'button'>, VariantProps<type
 }
 
 export function Button({ className, variant, size, asChild, loading, disabled, children, type, ...props }: ButtonProps) {
-  const Comp = asChild ? Slot.Root : 'button';
+  const classes = cn(buttonVariants({ variant, size }), className);
+  if (asChild) {
+    return (
+      <Slot.Root className={classes} {...props}>
+        {children}
+      </Slot.Root>
+    );
+  }
   return (
-    <Comp
-      type={asChild ? undefined : (type ?? 'button')}
-      className={cn(buttonVariants({ variant, size }), className)}
-      disabled={asChild ? undefined : disabled || loading}
-      aria-busy={loading || undefined}
-      {...props}
-    >
-      {loading && !asChild && <Spinner className="size-3.5 text-current" />}
-      {asChild ? children : <>{children}</>}
-    </Comp>
+    <button type={type ?? 'button'} className={classes} disabled={disabled || loading} aria-busy={loading || undefined} {...props}>
+      {loading && <Spinner className="size-3.5 text-current" />}
+      {children}
+    </button>
   );
 }

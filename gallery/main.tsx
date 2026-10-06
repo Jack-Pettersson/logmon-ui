@@ -46,6 +46,7 @@ import {
   TooltipProvider,
   UserMenu,
   DEFAULT_RANGE,
+  ErrorBoundary,
   formatRelative,
   themes,
   toast,
@@ -180,6 +181,9 @@ function Components() {
           <Button size="sm">Small</Button>
           <Button size="icon" aria-label="Settings">
             <Settings />
+          </Button>
+          <Button asChild variant="secondary">
+            <a href="#components">As link</a>
           </Button>
         </div>
       </Panel>
@@ -394,7 +398,9 @@ createRoot(document.getElementById('root')!).render(
       <TooltipProvider>
         <ConfirmProvider>
           <BrowserRouter>
-            <Shell />
+            <ErrorBoundary>
+              <Shell />
+            </ErrorBoundary>
           </BrowserRouter>
           <Toaster />
         </ConfirmProvider>

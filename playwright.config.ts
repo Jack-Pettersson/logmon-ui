@@ -5,7 +5,7 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/__screenshots__/{arg}{ext}',
   fullyParallel: true,
   reporter: process.env.CI ? 'github' : 'list',
-  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.002, animations: 'disabled' } },
+  expect: { toHaveScreenshot: { maxDiffPixels: 50, animations: 'disabled' } },
   use: {
     baseURL: 'http://127.0.0.1:4173',
     timezoneId: 'UTC',
