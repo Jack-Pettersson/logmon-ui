@@ -43,7 +43,7 @@ function readPreference(): Preference {
 }
 
 export interface ThemeProviderProps {
-  /** Cluster-wide theme. `undefined` reads the server-rendered meta tag. */
+  /** Instance-wide theme override. `undefined` reads the server-rendered meta tag. */
   override?: string | null;
   /** False before sign-in: the default theme applies and the preference is ignored. */
   applyPreference?: boolean;
