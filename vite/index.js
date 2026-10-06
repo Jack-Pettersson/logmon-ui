@@ -16,6 +16,10 @@ export function logmonUi() {
   const fileName = `assets/theme-init-${hash}.js`;
   return {
     name: 'logmon-ui',
+    config() {
+      // CSP has font-src 'self': fonts must never be inlined as data: URIs.
+      return { build: { assetsInlineLimit: 0 } };
+    },
     configResolved(config) {
       base = config.base;
       isBuild = config.command === 'build';
