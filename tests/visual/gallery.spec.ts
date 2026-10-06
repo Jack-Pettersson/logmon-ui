@@ -54,3 +54,14 @@ test('theme picker writes the cookie and applies immediately', async ({ page }) 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dracula');
 });
+
+test('every gallery page renders without runtime errors', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  for (const path of ['/', '/components', '/themes']) {
+    await open(page, path, 'logmon', 'dark');
+    await expect(page.locator('main h1')).toBeVisible();
+  }
+  expect(errors).toEqual([]);
+});

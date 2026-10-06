@@ -18,7 +18,7 @@ export function logmonUi() {
     name: 'logmon-ui',
     config() {
       // CSP has font-src 'self': fonts must never be inlined as data: URIs.
-      return { build: { assetsInlineLimit: 0 } };
+      return { build: { assetsInlineLimit: 0, chunkSizeWarningLimit: 1024 } };
     },
     configResolved(config) {
       base = config.base;

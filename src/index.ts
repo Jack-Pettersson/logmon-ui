@@ -66,6 +66,7 @@ export {
 export { Table, THead, TBody, TR, TH, TD, TableEmpty, Pagination } from './components/table.tsx';
 export { CopyButton, CodeBlock, Mono } from './components/code.tsx';
 export { TimeRangePicker } from './components/time-range.tsx';
+export { ErrorBoundary } from './components/error-boundary.tsx';
 
 export { AppShell, type NavItem, type NavSection, type AppShellProps } from './shell/AppShell.tsx';
 export { Brand, LogmonMark } from './shell/Brand.tsx';
