@@ -59,9 +59,31 @@ test('every gallery page renders without runtime errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-  for (const path of ['/', '/components', '/themes']) {
+  for (const path of ['/', '/components', '/themes', '/audit']) {
     await open(page, path, 'logmon', 'dark');
     await expect(page.locator('main h1')).toBeVisible();
   }
   expect(errors).toEqual([]);
+});
+
+for (const scheme of ['light', 'dark'] as const) {
+  test(`audit log table ${scheme}`, async ({ page }) => {
+    await open(page, '/audit', 'logmon', scheme);
+    await page.getByRole('button', { name: 'Show details' }).first().click();
+    await expect(page.locator('main')).toHaveScreenshot(`audit-logmon-${scheme}.png`);
+  });
+}
+
+test('audit log table: labels, raw unknown actions, details, paging', async ({ page }) => {
+  await open(page, '/audit', 'logmon', 'light');
+  const main = page.locator('main');
+  await expect(main).toContainText('Alert rule updated');
+  await expect(main).toContainText('chart_versions.refresh');
+  await expect(main.getByRole('columnheader', { name: 'Org' })).toBeVisible();
+  await page.getByRole('button', { name: 'Show details' }).first().click();
+  await expect(main).toContainText('"threshold": 90');
+  await page.getByRole('button', { name: 'Hide details' }).click();
+  await expect(main).not.toContainText('"threshold": 90');
+  await page.getByRole('button', { name: /next/i }).click();
+  await expect(main).toContainText('No entries match these filters.');
 });

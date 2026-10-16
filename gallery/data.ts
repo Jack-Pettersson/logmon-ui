@@ -54,3 +54,53 @@ export const AGENTS = [
 ] as const;
 
 export const NOW = BASE;
+
+export interface GalleryAuditEntry {
+  id: number;
+  occurred_at: string;
+  actor: string;
+  action: string;
+  target_type: string;
+  target_id: string;
+  details?: Record<string, unknown>;
+  org_id?: number;
+}
+
+const audit = (
+  id: number,
+  minutesAgo: number,
+  actor: string,
+  action: string,
+  target: string,
+  details?: Record<string, unknown>,
+  org_id?: number,
+): GalleryAuditEntry => {
+  const [target_type, target_id = ''] = target.split(':');
+  return {
+    id,
+    occurred_at: new Date(NOW - minutesAgo * 60_000).toISOString(),
+    actor,
+    action,
+    target_type: target_type!,
+    target_id,
+    details,
+    org_id,
+  };
+};
+
+export const AUDIT = [
+  audit(6, 3, 'ada@acme.example', 'alert_rule.update', 'alert_rule:12', { name: 'High CPU', threshold: 90 }, 7),
+  audit(5, 18, 'ada@acme.example', 'agent.adopt', 'agent:web-01', { hostname: 'web-01.prod.internal' }, 7),
+  audit(4, 42, 'ops@logmon.example', 'license.extend_trial', 'license:3', { days: 14 }, 7),
+  audit(3, 95, 'hank@acme.example', 'profile.create', 'profile:web', undefined, 7),
+  audit(2, 240, 'ada@acme.example', 'user.login_failed', 'user:5', undefined, 7),
+  audit(1, 1440, 'publish-pipeline', 'chart_versions.refresh', 'chart_versions'),
+];
+
+export const AUDIT_LABELS = new Map([
+  ['alert_rule.update', 'Alert rule updated'],
+  ['agent.adopt', 'Agent adopted'],
+  ['license.extend_trial', 'Trial extended'],
+  ['profile.create', 'Profile created'],
+  ['user.login_failed', 'Failed sign-in'],
+]);

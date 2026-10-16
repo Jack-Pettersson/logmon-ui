@@ -4,6 +4,7 @@ import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import {
+  AuditLogTable,
   AppShell,
   Badge,
   Brand,
@@ -57,7 +58,7 @@ import {
   type TimeRange,
 } from './exports.ts';
 import { Meter, StackedBarChart, TimeSeriesChart } from '../src/charts/index.ts';
-import { AGENTS, LEVELS, NOW, logHistogram, metricSeries } from './data.ts';
+import { AGENTS, AUDIT, AUDIT_LABELS, LEVELS, NOW, logHistogram, metricSeries } from './data.ts';
 
 const levelSeries = LEVELS.map((l) => ({ key: l, label: l, color: `var(--color-sev-${l.toLowerCase()})` }));
 
@@ -359,6 +360,26 @@ function Themes() {
   );
 }
 
+function Audit() {
+  const [offset, setOffset] = useState(0);
+  return (
+    <Page>
+      <PageHeader title="Audit log" description="AuditLogTable with the admin console's Org column." />
+      <Panel flush>
+        <AuditLogTable
+          entries={offset === 0 ? AUDIT : []}
+          actionLabels={AUDIT_LABELS}
+          extraColumns={[{ header: 'Org', cell: (e) => e.org_id ?? '—' }]}
+          offset={offset}
+          pageSize={6}
+          hasMore={offset === 0}
+          onOffsetChange={setOffset}
+        />
+      </Panel>
+    </Page>
+  );
+}
+
 function Shell() {
   return (
     <AppShell
@@ -386,6 +407,7 @@ function Shell() {
         <Route path="/" element={<Overview />} />
         <Route path="/components" element={<Components />} />
         <Route path="/themes" element={<Themes />} />
+        <Route path="/audit" element={<Audit />} />
         <Route path="*" element={<Overview />} />
       </Routes>
     </AppShell>
