@@ -59,7 +59,7 @@ test('every gallery page renders without runtime errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-  for (const path of ['/', '/components', '/themes', '/audit']) {
+  for (const path of ['/', '/components', '/themes', '/audit', '/usage']) {
     await open(page, path, 'logmon', 'dark');
     await expect(page.locator('main h1')).toBeVisible();
   }
@@ -86,4 +86,23 @@ test('audit log table: labels, raw unknown actions, details, paging', async ({ p
   await expect(main).not.toContainText('"threshold": 90');
   await page.getByRole('button', { name: /next/i }).click();
   await expect(main).toContainText('No entries match these filters.');
+});
+
+for (const scheme of ['light', 'dark'] as const) {
+  test(`instance usage view ${scheme}`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 2400 });
+    await open(page, '/usage', 'logmon', scheme);
+    await expect(page.locator('main')).toHaveScreenshot(`usage-logmon-${scheme}.png`);
+  });
+}
+
+test('instance usage view: hints critical first, meters, unknown limits', async ({ page }) => {
+  await open(page, '/usage', 'logmon', 'light');
+  const main = page.locator('main');
+  const callouts = main.locator('[role="alert"], [role="status"]');
+  await expect(callouts).toHaveCount(2);
+  await expect(callouts.first()).toContainText('InfluxDB memory');
+  await expect(main).toContainText('limit unknown');
+  await expect(main).toContainText('not measured yet');
+  await expect(main).toContainText('of 1.00 GB');
 });

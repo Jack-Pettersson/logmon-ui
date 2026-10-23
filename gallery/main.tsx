@@ -57,8 +57,8 @@ import {
   type Severity,
   type TimeRange,
 } from './exports.ts';
-import { Meter, StackedBarChart, TimeSeriesChart } from '../src/charts/index.ts';
-import { AGENTS, AUDIT, AUDIT_LABELS, LEVELS, NOW, logHistogram, metricSeries } from './data.ts';
+import { InstanceUsageView, Meter, StackedBarChart, TimeSeriesChart, usageHints, type InstanceUsage } from '../src/charts/index.ts';
+import { AGENTS, AUDIT, AUDIT_LABELS, LEVELS, NOW, USAGE, logHistogram, metricSeries } from './data.ts';
 
 const levelSeries = LEVELS.map((l) => ({ key: l, label: l, color: `var(--color-sev-${l.toLowerCase()})` }));
 
@@ -380,6 +380,19 @@ function Audit() {
   );
 }
 
+function Usage() {
+  const usage: InstanceUsage = USAGE;
+  return (
+    <Page>
+      <PageHeader title="Instance usage" description="InstanceUsageView with its hints, on a small instance." />
+      {usageHints(usage).map((r) => (
+        <Callout key={`${r.kind}-${r.component}`} tone={r.level === 'critical' ? 'danger' : 'warn'} title={r.hint} />
+      ))}
+      <InstanceUsageView usage={usage} />
+    </Page>
+  );
+}
+
 function Shell() {
   return (
     <AppShell
@@ -408,6 +421,7 @@ function Shell() {
         <Route path="/components" element={<Components />} />
         <Route path="/themes" element={<Themes />} />
         <Route path="/audit" element={<Audit />} />
+        <Route path="/usage" element={<Usage />} />
         <Route path="*" element={<Overview />} />
       </Routes>
     </AppShell>
