@@ -87,3 +87,16 @@ test('audit log table: labels, raw unknown actions, details, paging', async ({ p
   await page.getByRole('button', { name: /next/i }).click();
   await expect(main).toContainText('No entries match these filters.');
 });
+
+test('time-range picker refuses an empty range', async ({ page }) => {
+  await open(page, '/', 'logmon', 'dark');
+  await page.getByRole('button', { name: /^Time range:/ }).click();
+  const apply = page.getByRole('button', { name: 'Apply' });
+  await expect(apply).toBeEnabled();
+  await page.getByRole('radiogroup', { name: 'To mode' }).getByRole('radio', { name: 'Relative' }).click();
+  await expect(page.getByText('From must be before To')).toBeVisible();
+  await expect(apply).toBeDisabled();
+  await page.getByLabel('From amount').fill('2');
+  await expect(page.getByText('From must be before To')).toBeHidden();
+  await expect(apply).toBeEnabled();
+});
