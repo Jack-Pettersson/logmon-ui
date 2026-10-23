@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { getNiceTickValues } from 'recharts';
 
 export const seriesColor = (i: number) => `var(--color-data-${(i % 8) + 1})`;
 
@@ -80,7 +81,18 @@ export function Legend({ items }: { items: { key: string; label: ReactNode; colo
   );
 }
 
+export type YDomain = [number | 'auto', number | 'auto'];
+
+// Recharts' own nice ticks (kept inside a fixed domain); passing them back pins the axis to the labels yAxisWidth measured.
+export function yAxisTicks(values: number[], [lo, hi]: YDomain = ['auto', 'auto'], allowDecimals = true): number[] | undefined {
+  const min = typeof lo === 'number' ? lo : Math.min(...values);
+  const max = typeof hi === 'number' ? hi : Math.max(...values);
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return undefined;
+  const ticks = getNiceTickValues([min, max], 5, allowDecimals);
+  return typeof lo === 'number' && typeof hi === 'number' ? ticks.filter((t) => t >= lo && t <= hi) : ticks;
+}
+
 // Recharts' width="auto" measures before the mono font loads and clips labels.
-export function yAxisWidth(peak: number, format: (v: number) => string = (v) => v.toLocaleString()): number {
-  return Math.max(32, format(peak).length * 7 + 12);
+export function yAxisWidth(ticks: number[] = [], format: (v: number) => string = (v) => v.toLocaleString()): number {
+  return Math.max(32, ...ticks.map((t) => format(t).length * 7 + 12));
 }
