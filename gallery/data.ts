@@ -104,3 +104,72 @@ export const AUDIT_LABELS = new Map([
   ['profile.create', 'Profile created'],
   ['user.login_failed', 'Failed sign-in'],
 ]);
+
+const USAGE_STEP = 1_800_000;
+
+function usageSeries(seed: number, points: number, base: number, swing: number, max: number) {
+  const r = rng(seed);
+  let v = base;
+  return Array.from({ length: points }, (_, i) => {
+    v = Math.min(max, Math.max(base * 0.3, v + (r() - 0.48) * swing));
+    return { time: new Date(NOW - (points - 1 - i) * USAGE_STEP).toISOString(), value: v };
+  });
+}
+
+const GiB = 1024 ** 3;
+
+const usageResource = (
+  kind: 'cpu' | 'memory' | 'storage',
+  component: 'server' | 'postgres' | 'influxdb' | 'data',
+  limit: number | undefined,
+  points: { time: string; value: number }[],
+  level: 'ok' | 'warn' | 'critical' | 'unknown' = 'ok',
+  hint?: string,
+) => ({
+  kind,
+  component,
+  unit: kind === 'cpu' ? ('cores' as const) : ('bytes' as const),
+  limit,
+  current: points.at(-1)?.value,
+  level,
+  hint,
+  points,
+});
+
+export const USAGE = {
+  range: '24h' as const,
+  step_seconds: USAGE_STEP / 1000,
+  instance_class: 'small',
+  resources: [
+    usageResource('cpu', 'server', 0.5, usageSeries(21, 48, 0.12, 0.05, 0.45)),
+    usageResource('cpu', 'postgres', 0.5, usageSeries(22, 48, 0.08, 0.03, 0.4)),
+    usageResource('cpu', 'influxdb', 0.5, usageSeries(23, 48, 0.2, 0.06, 0.48)),
+    usageResource('memory', 'server', GiB, usageSeries(24, 48, 0.35 * GiB, 0.04 * GiB, 0.6 * GiB)),
+    usageResource('memory', 'postgres', GiB, usageSeries(25, 48, 0.5 * GiB, 0.03 * GiB, 0.7 * GiB)),
+    usageResource(
+      'memory',
+      'influxdb',
+      GiB,
+      usageSeries(26, 48, 0.86 * GiB, 0.02 * GiB, 0.95 * GiB),
+      'critical',
+      'InfluxDB memory is over 80% of its limit.',
+    ),
+    usageResource(
+      'storage',
+      'postgres',
+      10 * GiB,
+      usageSeries(27, 48, 7.8 * GiB, 0.05 * GiB, 8.5 * GiB),
+      'warn',
+      'PostgreSQL storage is over 75% of its volume.',
+    ),
+    usageResource('storage', 'influxdb', undefined, usageSeries(28, 48, 2 * GiB, 0.02 * GiB, 3 * GiB), 'unknown'),
+    { kind: 'storage' as const, component: 'data' as const, unit: 'bytes' as const, level: 'unknown' as const, points: [] },
+  ],
+  ingest: usageSeries(29, 48, 1200, 300, 4000).map((p, i) => ({
+    time: p.time,
+    log_lines_per_min: p.value,
+    log_bytes_per_min: p.value * 180,
+    metric_points_per_min: 900 + (i % 6) * 40,
+    agents: i < 30 ? 4 : 5,
+  })),
+};
