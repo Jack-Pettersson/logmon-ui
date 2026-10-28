@@ -1,39 +1,24 @@
 # logmon-ui
 
-The design system shared by every logmon frontend: logmon-server's dashboard, logmon-hosting's customer portal and its admin console. It holds the design tokens, the theme catalogue and runtime, the React components, the app shell and the chart components. Apps own their pages, routing and API clients; everything visual comes from here.
+The design system every logmon frontend builds on: logmon-server's dashboard, logmon-hosting's portal (`frontend/`) and admin console (`frontend-admin/`). Tokens, themes, components, app shell and charts live here; apps own their pages, routing and API clients.
 
-Stack: React 19, TypeScript (strict), Tailwind CSS v4 over CSS custom properties, Radix primitives, Recharts behind our own chart components, lucide icons, Inter and JetBrains Mono (self-hosted).
+- Stack: React 19, strict TypeScript, Tailwind CSS v4 over CSS custom properties, Radix (`radix-ui`), Recharts behind our own chart components, lucide icons, self-hosted Inter and JetBrains Mono.
+- Ships TypeScript source (`exports` in `package.json`); the consuming Vite build compiles it.
+- Entries: `logmon-ui` (`src/index.ts`: lib helpers, theme runtime, components, shell), `logmon-ui/charts` (`src/charts/index.ts`; separate so pages without charts skip Recharts), `logmon-ui/styles.css`, `logmon-ui/vite`.
 
 ## Using it in an app
 
-The package ships TypeScript source; the consuming Vite build compiles it.
-
-```jsonc
-// package.json
-"dependencies": { "logmon-ui": "github:Jack-Pettersson/logmon-ui#v0.1.0" }
-```
-
-```ts
-// vite.config.ts
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
-import { logmonUi } from 'logmon-ui/vite';
-export default defineConfig({ plugins: [react(), tailwindcss(), logmonUi()] });
-```
-
-```css
-/* src/styles.css */
-@import 'logmon-ui/styles.css';
-```
-
-```html
-<!-- index.html: the Go server replaces the tokens when it serves the page -->
-<meta name="logmon:theme-override" content="__LOGMON_THEME_OVERRIDE__" />
-<meta name="logmon:cookie-domain" content="__LOGMON_COOKIE_DOMAIN__" />
-```
+- `package.json`: `"logmon-ui": "github:Jack-Pettersson/logmon-ui#vX.Y.Z"`.
+- `vite.config.ts`: `import { logmonUi } from 'logmon-ui/vite'` and `plugins: [react(), tailwindcss(), logmonUi()]`. The plugin injects the blocking theme-init script (`src/theme/init.generated.js`) that sets `data-theme` and `data-scheme` on `<html>` before first paint, and sets `assetsInlineLimit: 0` so fonts are never inlined as `data:` URIs (CSP `font-src 'self'`).
+- `src/app.css`: `@import 'logmon-ui/styles.css';`
+- `index.html` meta tags, filled by the Go server when it serves the page:
+  - `logmon:theme-override` — theme id applied to everyone on this instance
+  - `logmon:cookie-domain` — parent domain the preference cookie is set on
+  - `logmon:theme-session` — localStorage key of the app's session; with no value under it the default theme applies
+- Provider tree:
 
 ```tsx
-<ThemeProvider override={instanceTheme /* optional, live value from the server */} applyPreference={signedIn}>
+<ThemeProvider override={instanceTheme} applyPreference={signedIn}>
   <TooltipProvider>
     <ConfirmProvider>
       <App />
@@ -43,34 +28,38 @@ export default defineConfig({ plugins: [react(), tailwindcss(), logmonUi()] });
 </ThemeProvider>
 ```
 
-Charts live in a separate entry so pages without charts don't pull Recharts: `import { TimeSeriesChart } from 'logmon-ui/charts'`.
+- `override` `undefined` reads the `logmon:theme-override` meta tag; a live value from the server replaces it. `applyPreference={false}` ignores cookie and override: default theme, following the OS.
 
 ## Themes
 
-A user's choice is `{theme, mode}` with mode `light | dark | system`, stored in the `logmon_theme` cookie on the shared parent domain, so hosting, admin and every instance read the same value. An instance override (`logmon:theme-override`) replaces the theme for everyone on that instance but never the user's mode. Apps with a sign-in page add `<meta name="logmon:theme-session" content="<localStorage session key>">` and pass `applyPreference={signedIn}`: until there is a session, the default theme (Logmon, following the OS) applies and the preference is ignored. The `logmonUi()` Vite plugin injects a blocking script that applies `data-theme` and `data-scheme` on `<html>` before first paint; `ThemeProvider` keeps them in sync afterwards.
-
-A theme is colour only: about 35 roles per variant (`src/theme/types.ts`). Geometry, type and spacing belong to the base design in `src/styles/index.css` and are the same for every theme. Components only ever use role utilities (`bg-raised`, `text-fg-muted`, `border-line`, `text-danger`, `bg-sev-error`, `--color-data-3` …); Tailwind's default palette is switched off so nothing else exists.
+- A preference is `{theme, mode}`, mode `light | dark | system`, stored as `<theme>.<mode>` in the `logmon_theme` cookie with `Domain` from `logmon:cookie-domain`, so hosting, admin and every instance read the same value. Default `logmon`/`system`.
+- An override replaces the theme, never the mode.
+- `resolveAppearance` in `src/theme/preference.ts` decides; the pre-paint script in `src/theme/init.ts` mirrors it and `tests/unit/init-script.test.ts` holds the two together.
+- Catalogue in `src/theme/registry.ts`: `logmon`, `prod`, `staging`, `dev`, `solarized`, `dracula`, `terracotta`. A theme has a light and/or dark variant; a missing scheme falls back to the other.
+- A theme is colour only: 37 roles per variant (`ThemeVariant`, `src/theme/types.ts`), emitted as `--color-*` variables per `[data-theme][data-scheme]` into the generated `src/styles/themes.css`. Geometry, type, spacing and the fallback colours are in `src/styles/index.css`.
+- Tailwind's palette is off (`--color-*: initial`): components use role utilities only (`bg-raised`, `text-fg-muted`, `border-line`, `text-danger`, `bg-sev-error`, `--color-data-3`).
+- `ThemePicker` (settings page) and `AppearanceButton` (shell) write the cookie through `useTheme().setPreference`.
 
 ### Adding a theme
 
-1. Add a `Theme` object under `src/theme/themes/` and list it in `src/theme/registry.ts`.
-2. `npm run gen` regenerates `src/styles/themes.css` and the pre-paint script.
-3. `npm test` checks every text, status, severity and data role against WCAG contrast minimums; adjust colours until it passes.
-4. `npm run test:visual:update` (inside the Playwright container, see `tests/visual/README.md`) adds its screenshots.
+1. Add a `Theme` under `src/theme/themes/` and list it in `src/theme/registry.ts`.
+2. `npm run gen` rewrites `src/styles/themes.css` and `src/theme/init.generated.js` (CI runs `gen:check`).
+3. `npm test` checks contrast (`src/theme/contrast.ts`): text, status, severity and accent 4.5:1, categorical data colours 3:1. `node scripts/contrast-report.ts` lists every failure.
+4. `npm run test:visual:update` in the Playwright container adds its screenshots (`tests/visual/README.md`).
 
 ### Adding a role
 
-Add it to `ThemeVariant`, map it in `src/theme/css.ts`, give it a default in `src/styles/index.css`. `tsc` then lists every theme that needs a value.
+- Add it to `ThemeVariant`, map it in `src/theme/css.ts`, default it in `src/styles/index.css`; `npm run typecheck` lists every theme missing a value.
 
 ## Development
 
-```sh
-npm install
-npm run dev          # gallery at http://localhost:5173 — every component in the current theme
-npm run lint && npm run typecheck && npm test
-npm run test:visual  # screenshot regression (run in the Playwright container for stable pixels)
-```
+- Node ≥ 26, npm ≥ 11 (`engines`).
+- `npm ci`
+- `npm run dev` — the gallery (`gallery/`) at http://localhost:5173, every component in the current theme
+- `npm run gen:check && npm run format:check && npm run lint && npm run typecheck && npm test && npm run build` — what CI runs (`.github/workflows/ci.yml`)
+- `npm run test:visual` — Playwright screenshots of the built gallery; CI runs it in `mcr.microsoft.com/playwright:v1.63.0-noble`, run it there too for matching pixels
 
 ## Releasing
 
-Bump `version` in `package.json`, merge, then tag `vX.Y.Z` on main and push the tag. Apps pick it up by changing the `#vX.Y.Z` ref in their `package.json` and regenerating their lockfile.
+- Bump `version` in `package.json`, merge, tag `vX.Y.Z` on `main` and push the tag; no workflow tags.
+- Consumers change the `#vX.Y.Z` ref in their `package.json` and regenerate their lockfile under the Dockerfile's node image (root `CLAUDE.md`).
