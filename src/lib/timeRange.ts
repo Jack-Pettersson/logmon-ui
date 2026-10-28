@@ -54,7 +54,7 @@ export function resolveRange(range: TimeRange, now = Date.now()): { from: number
   const from = resolveTimePoint(range.from, now);
   const to = resolveTimePoint(range.to, now);
   if (!Number.isFinite(from) || !Number.isFinite(to)) return { from, to, error: 'From and To must both be valid times' };
-  if (from > to) return { from, to, error: 'From must not be after To' };
+  if (from >= to) return { from, to, error: 'From must be before To' };
   return { from, to, error: null };
 }
 
