@@ -83,13 +83,14 @@ export function Legend({ items }: { items: { key: string; label: ReactNode; colo
 
 export type YDomain = [number | 'auto', number | 'auto'];
 
-// Recharts' own nice ticks (kept inside a fixed domain); passing them back pins the axis to the labels yAxisWidth measured.
+// The ticks Recharts draws (a numeric bound widens to the data; a fixed domain is labelled at both ends), pinned so yAxisWidth measures what renders.
 export function yAxisTicks(values: number[], [lo, hi]: YDomain = ['auto', 'auto'], allowDecimals = true): number[] | undefined {
-  const min = typeof lo === 'number' ? lo : Math.min(...values);
-  const max = typeof hi === 'number' ? hi : Math.max(...values);
+  const min = typeof lo === 'number' ? Math.min(lo, ...values) : Math.min(...values);
+  const max = typeof hi === 'number' ? Math.max(hi, ...values) : Math.max(...values);
   if (!Number.isFinite(min) || !Number.isFinite(max)) return undefined;
   const ticks = getNiceTickValues([min, max], 5, allowDecimals);
-  return typeof lo === 'number' && typeof hi === 'number' ? ticks.filter((t) => t >= lo && t <= hi) : ticks;
+  if (typeof lo !== 'number' || typeof hi !== 'number') return ticks;
+  return [min, ...ticks.filter((t) => t > min && t < max), max];
 }
 
 // Recharts' width="auto" measures before the mono font loads and clips labels.

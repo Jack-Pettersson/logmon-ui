@@ -7,7 +7,11 @@ describe('yAxisTicks', () => {
     expect(yAxisTicks([3, 87])).toEqual([0, 25, 50, 75, 100]);
     expect(yAxisTicks([12, 40], [0, 100])).toEqual([0, 25, 50, 75, 100]);
     expect(yAxisTicks([0, 7], [0, 'auto'], false)).toEqual([0, 2, 4, 6, 8]);
-    expect(yAxisTicks([12, 40], [0, 90])).toEqual([0, 25, 50, 75]);
+    expect(yAxisTicks([12, 40], [0, 90])).toEqual([0, 25, 50, 75, 90]);
+  });
+  it('widens a numeric bound to data beyond it, as Recharts draws the axis', () => {
+    expect(yAxisTicks([12, 150], [0, 100])).toEqual([0, 40, 80, 120, 150]);
+    expect(yAxisTicks([-30, 40], [0, 'auto'])).toEqual(yAxisTicks([-30, 40]));
   });
   it('has nothing to pick without values', () => {
     expect(yAxisTicks([])).toBeUndefined();
