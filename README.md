@@ -57,7 +57,7 @@ The design system every logmon frontend builds on: logmon-server's dashboard, lo
 - `npm ci`
 - `npm run dev` — the gallery (`gallery/`) at http://localhost:5173, every component in the current theme
 - `npm run gen:check && npm run format:check && npm run lint && npm run typecheck && npm test && npm run build` — what CI runs (`.github/workflows/ci.yml`)
-- `npm run test:visual` — Playwright screenshots of the built gallery; CI runs it in `mcr.microsoft.com/playwright:v1.63.0-noble`, run it there too for matching pixels
+- `npm run test:visual` — Playwright screenshots of the built gallery; CI runs it in the `mcr.microsoft.com/playwright` image of the locked `@playwright/test` version; run it there too for matching pixels (`tests/visual/README.md`)
 
 ## Releasing
 

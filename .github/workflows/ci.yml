@@ -27,9 +27,26 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  visual:
+  # Playwright won't launch browsers from an image of another version than the locked @playwright/test.
+  playwright-image:
     runs-on: [self-hosted, linux, arm64]
-    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    outputs:
+      tag: ${{ steps.lock.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: package-lock.json
+          sparse-checkout-cone-mode: false
+      - id: lock
+        run: |
+          v=$(jq -er '.packages["node_modules/@playwright/test"].version' package-lock.json)
+          echo "tag=v$v-noble" >> "$GITHUB_OUTPUT"
+
+  visual:
+    needs: playwright-image
+    runs-on: [self-hosted, linux, arm64]
+    container: mcr.microsoft.com/playwright:${{ needs.playwright-image.outputs.tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
