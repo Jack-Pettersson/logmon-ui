@@ -1,0 +1,5 @@
+{
+  "labels": ["bot-review"],
+  "autoReview": ["open"],
+  "triggerOnDrafts": false
+}
