@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Reviews run only for PRs labelled bot-review or on "@coderabbitai review"; the free quota is spent on request.
+reviews:
+  auto_review:
+    enabled: false
+    labels: ["bot-review"]
+    base_branches: [".*"]
+    drafts: false
