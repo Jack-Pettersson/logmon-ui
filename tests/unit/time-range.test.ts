@@ -11,8 +11,15 @@ describe('time ranges', () => {
     expect(subtractRelative(NOW, 2, 'hours')).toBe(NOW - 7_200_000);
   });
 
-  it('rejects a range whose start is after its end', () => {
-    expect(resolveRange({ from: { mode: 'absolute', value: NOW }, to: { mode: 'absolute', value: NOW - 1 } }, NOW).error).toMatch(/after/);
+  it('rejects a range whose start is not before its end', () => {
+    const range = (from: number, to: number) => ({ from: { mode: 'absolute', value: from }, to: { mode: 'absolute', value: to } }) as const;
+    expect(resolveRange(range(NOW, NOW - 1), NOW).error).toBe('From must be before To');
+    expect(resolveRange(range(NOW, NOW), NOW).error).toBe('From must be before To');
+    expect(resolveRange(range(NOW - 1, NOW), NOW)).toEqual({ from: NOW - 1, to: NOW, error: null });
+    expect(
+      resolveRange({ from: { mode: 'relative', amount: 60, unit: 'minutes' }, to: { mode: 'relative', amount: 1, unit: 'hours' } }, NOW)
+        .error,
+    ).toBe('From must be before To');
     expect(resolveRange(QUICK_RANGES[0]!, NOW)).toEqual({ from: NOW - 900_000, to: NOW, error: null });
   });
 

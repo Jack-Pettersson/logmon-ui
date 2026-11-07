@@ -106,3 +106,16 @@ test('instance usage view: hints critical first, meters, unknown limits', async 
   await expect(main).toContainText('not measured yet');
   await expect(main).toContainText('of 1.00 GB');
 });
+
+test('time-range picker refuses an empty range', async ({ page }) => {
+  await open(page, '/', 'logmon', 'dark');
+  await page.getByRole('button', { name: /^Time range:/ }).click();
+  const apply = page.getByRole('button', { name: 'Apply' });
+  await expect(apply).toBeEnabled();
+  await page.getByRole('radiogroup', { name: 'To mode' }).getByRole('radio', { name: 'Relative' }).click();
+  await expect(page.getByText('From must be before To')).toBeVisible();
+  await expect(apply).toBeDisabled();
+  await page.getByLabel('From amount').fill('2');
+  await expect(page.getByText('From must be before To')).toBeHidden();
+  await expect(apply).toBeEnabled();
+});
